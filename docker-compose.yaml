@@ -10,7 +10,8 @@ x-airflow-common: &airflow-common
     PYTHON_VERSION: 3.11.15
   volumes:
     - ./airflow/dags:/opt/airflow/dags
-    - ./api_req:/opt/airflow/api_req
+    - ./train:/opt/airflow/train
+    - ./Kode:/opt/airflow/Kode
   user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-50000}"
   depends_on:
     - db
