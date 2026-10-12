@@ -16,7 +16,7 @@ def sesi():
 def transform_cust(spark, file_path):
     try:
         logging.info("extract and transforming Customer Data ....")
-        load_path = '/opt/airflow/staging/customer.csv'
+        load_path = '/opt/airflow/staging/customers.csv'
         df_cust = spark.read.option('delimiter',',').option('header', True).csv(file_path)
         df_cust  = df_cust.withColumn('customer_zip_code_prefix', F.col('customer_zip_code_prefix').cast("integer"))
 
@@ -56,7 +56,7 @@ def transform_oi(spark,file_path):
 def transform_order(spark,file_path):
     try:
         logging.info("extract and transforming Order Data ....")
-        load_path = '/opt/airflow/staging/order.csv'
+        load_path = '/opt/airflow/staging/orders.csv'
         df_order = spark.read.option('delimiter',',').option('header', True).csv(file_path)
         df_order = df_order.dropna(subset='order_id')
 
@@ -79,7 +79,7 @@ def transform_order(spark,file_path):
 def transform_payments(spark,file_path):
     try:
         logging.info("extract and transforming Payment Data ....")
-        load_path = '/opt/airflow/staging/customer.csv'
+        load_path = '/opt/airflow/staging/payments.csv'
         df_payments = spark.read.option('delimiter',',').option('header', True).csv(file_path)
         df_payments = df_payments.dropna(subset='order_id')
         df_payments = (
@@ -99,7 +99,7 @@ def transform_payments(spark,file_path):
 def transform_product(spark,file_path):
     try:
         logging.info("extract and transforming Product Data ....")
-        load_path = '/opt/airflow/staging/product.csv'
+        load_path = '/opt/airflow/staging/products.csv'
         df_product = spark.read.option('delimiter',',').option('header', True).csv(file_path)
         df_product = df_product.dropna(subset='product_id')
         df_product = df_product.withColumn('product_length_cm',F.col('product_length_cm').cast('double'))
