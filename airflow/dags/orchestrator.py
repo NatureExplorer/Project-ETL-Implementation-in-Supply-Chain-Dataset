@@ -1,53 +1,17 @@
-from airflow.models import DAG, Variable
+from airflow.models import DAG
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.providers.standard.sensors.filesystem import FileSensor
 from airflow.providers.standard.operators.bash import BashOperator
 from airflow.providers.standard.operators.empty import EmptyOperator
 from datetime import datetime, timedelta
 import sys
-from Kode.ET import main
-from sqlalchemy import create_engine
+from Kode.load import main, data_quality_checks, cleaning_process
 import logging
-import io
 import glob
-import pandas as pd
 import os
 
 sys.path.append('/opt/airflow/train')
 
-
-
-def load_files_to_DB(data_path, table_name:str):
-    """
-    function that inserts all transformed data into a Postgres database
-    
-    Args:
-        data_path: directory pointing to file
-        table_name:name of table in database
-    
-    """
-    engine = create_engine(str(Variable.get("DB_CONN")))
-    engine = engine.connect()
-
-    df = pd.read_csv(data_path)
-    #drops old table and creates new empty table using dataframe schema
-    df.head(0).to_sql(table_name, engine, if_exists='replace',index=False) 
-    conn = engine.raw_connection()
-    cur = conn.cursor()
-    output = io.StringIO()
-    df.to_csv(output, sep='\t', header=False, index=False)
-    output.seek(0)
-    contents = output.getvalue()
-    try:
-        cur.copy_from(output, table_name, null="") # set null values to ''
-    except:
-        pass
-    
-    if conn is not None:
-        conn.commit()
-        cur.close()
-        conn.close()
-        print("data insertion to database is completed...")
 
 def data_quality_checks(tables):
     """
@@ -141,7 +105,7 @@ with DAG(
 
     loading_customers_to_Postgres_task = PythonOperator(
         task_id = 'loading_customers_report_to_postgres',
-        python_callable=load_files_to_DB,
+        python_callable=main,
         op_kwargs={
             'data_path': '/opt/airflow/staging/customers.csv',
             'table_name':'customers',
@@ -150,7 +114,7 @@ with DAG(
 
     loading_OrderItems_report_to_Postgres_task = PythonOperator(
         task_id = 'loading_OrderItems_report_to_postgres',
-        python_callable=load_files_to_DB,
+        python_callable=main,
         op_kwargs={
             'data_path': '/opt/airflow/staging/order_items.csv',
             'table_name':'orderitems',
@@ -158,7 +122,7 @@ with DAG(
 
     loading_orders_report_to_Postgres_task = PythonOperator(
             task_id = 'loading_orders_report_to_postgres',
-            python_callable=load_files_to_DB,
+            python_callable=main,
             op_kwargs={
                 'data_path': '/opt/airflow/staging/orders.csv',
                 'table_name':'orders',
@@ -166,7 +130,7 @@ with DAG(
 
     loading_payments_report_to_Postgres_task = PythonOperator(
             task_id = 'loading_payments_report_to_postgres',
-            python_callable=load_files_to_DB,
+            python_callable=main,
             op_kwargs={
                 'data_path': '/opt/airflow/staging/payments.csv',
                 'table_name':'payments',
@@ -174,7 +138,7 @@ with DAG(
 
     loading_products_report_to_Postgres_task = PythonOperator(
             task_id = 'loading_products_report_to_postgres',
-            python_callable=load_files_to_DB,
+            python_callable=main,
             op_kwargs={
                 'data_path': '/opt/airflow/staging/products.csv',
                 'table_name':'products',

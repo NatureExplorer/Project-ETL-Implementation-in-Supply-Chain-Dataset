@@ -41,7 +41,7 @@ services:
     ports:
       - "5000:5432" 
     environment:
-      POSTGRES_DB: Retail_Database
+      POSTGRES_DB: airflow
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
     volumes:
