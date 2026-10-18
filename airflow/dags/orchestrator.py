@@ -51,7 +51,7 @@ def cleaning_process():
     
 
 default_args = {
-    'description':'DAG Order retail',
+    'description':'DAG Supply Chain',
     'owner': 'alam',
     'start_date': datetime.now(),
     'retries': 1,
@@ -176,8 +176,7 @@ with DAG(
         
     )
 
-    start_execution_task >> tugas_et >> [transform_customer, 
-                                                    transform_orderitems, transform_orders, transform_payments, transform_products]
+    start_execution_task >> tugas_et >> [transform_customer, transform_orderitems, transform_orders, transform_payments, transform_products]
 
     [transform_customer, 
     transform_orderitems, transform_orders, transform_payments, transform_products] >> transformed_data_ready_task

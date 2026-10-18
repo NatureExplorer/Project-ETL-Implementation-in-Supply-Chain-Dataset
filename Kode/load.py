@@ -128,9 +128,6 @@ def load_spark_df_to_postgres(engine, df, table_name):
     finally:
         conn.close()
 
-import logging
-from psycopg2 import sql
-
 
 def data_quality_checks(engine, tables):
 
