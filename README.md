@@ -1,11 +1,6 @@
-# 🚚 Logistic Supply Chain — Data Pipeline ETL
+# 🚚 Logistic dan Supply Chain — Data Pipeline ETL
 
 <p align="center">
-  <img src="https://img.shields.io/badge/PySpark-ETL-orange?logo=apachespark&logoColor=white" alt="PySpark"/>
-  <img src="https://img.shields.io/badge/PostgreSQL-Database-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL"/>
-  <img src="https://img.shields.io/badge/Apache%20Airflow-Orchestration-017CEE?logo=apacheairflow&logoColor=white" alt="Apache Airflow"/>
-  <img src="https://img.shields.io/badge/Redis-Caching-DC382D?logo=redis&logoColor=white" alt="Redis"/>
-  <img src="https://img.shields.io/badge/Docker-Containerization-2496ED?logo=docker&logoColor=white" alt="Docker"/>
   <img src="https://img.shields.io/badge/Status-In%20Development-yellow" alt="Project Status"/>
 </p>
 
@@ -13,7 +8,7 @@
   <b>From Raw CSV Files to Structured Data for Supply Chain Analytics</b>
 </p>
 
-Proyek ini berfokus pada pembangunan **automated ETL (Extract, Transform, Load) pipeline** untuk mengolah berbagai file CSV yang berkaitan dengan logistik dan *supply chain*. Pipeline dirancang untuk mengurangi proses pengolahan data secara manual, mengintegrasikan data dari berbagai sumber file, serta menyimpan hasil transformasi ke dalam database PostgreSQL agar lebih mudah diakses untuk kebutuhan analisis dan visualisasi data.
+Proyek ini berfokus pada pembangunan **Automated ETL (Extract, Transform, Load) pipeline** untuk mengolah berbagai file CSV yang berkaitan dengan logistik dan *supply chain*. Pipeline dirancang untuk mengurangi proses pengolahan data secara manual, mengintegrasikan data dari berbagai sumber file, serta menyimpan hasil transformasi ke dalam database PostgreSQL agar lebih mudah diakses untuk kebutuhan analisis dan visualisasi data.
 
 Dengan memanfaatkan PySpark, Apache Airflow, Redis, dan Docker, proyek ini mengeksplorasi penerapan proses ETL yang terstruktur, terjadwal, dan dapat dijalankan dalam lingkungan yang terisolasi.
 
@@ -100,7 +95,7 @@ Data yang telah tersimpan di PostgreSQL dapat diakses oleh tools analisis atau v
 
 > **Catatan:** Integrasi dashboard merupakan tahap downstream yang dapat dikembangkan setelah pipeline dan struktur data siap. Redis juga tidak dianggap sebagai media penyimpanan utama data warehouse.
 
-## 📂 Project Structure
+<!-- ## 📂 Project Structure
 
 Contoh struktur repositori yang dapat disesuaikan dengan implementasi aktual:
 
@@ -129,7 +124,7 @@ ETLogistic/
 └── README.md
 ``` -->
 
-*Struktur di atas merupakan contoh organisasi proyek. Nama folder dan file dapat disesuaikan dengan struktur repositori yang sebenarnya.*
+*Struktur di atas merupakan contoh organisasi proyek. Nama folder dan file dapat disesuaikan dengan struktur repositori yang sebenarnya.* -->
 
 ## ⚙️ Prerequisites
 
@@ -168,11 +163,15 @@ Sesuaikan konfigurasi koneksi database dan layanan lain dengan lingkungan lokal.
 Tempatkan file CSV pada direktori sumber yang sesuai dengan konfigurasi pipeline.
 
 ```text
-data/
-└── train/
-    ├── dataset_1.csv
-    ├── dataset_2.csv
-    └── dataset_3.csv
+Kode/
+└── Dataset/
+    └── Ecommerce/
+        └── Train
+              ├── df_Customers.csv
+              ├── df_OrderItems.csv
+              ├── df_Orders.csv
+              ├── df_Payments.csv
+              └── df_Products.csv
 ```
 
 Nama file di atas hanya ilustrasi. Gunakan dataset aktual yang tersedia pada proyek.
@@ -234,14 +233,3 @@ Beberapa pengembangan yang dapat dilakukan selanjutnya:
 - **Data Modeling:** Mengembangkan skema analitik seperti star schema apabila dibutuhkan untuk pelaporan.
 - **BI Integration:** Menghubungkan PostgreSQL dengan Power BI atau Tableau untuk membangun dashboard.
 - **Performance Optimization:** Menyesuaikan partisi, ukuran data, dan konfigurasi Spark berdasarkan kebutuhan pemrosesan.
-
-## 💡 Key Takeaway
-
-> **Better Data, Better Supply Chain.**  
-> Data yang dikelola dengan baik merupakan fondasi untuk menghasilkan analisis yang lebih konsisten, proses operasional yang lebih efisien, dan pengambilan keputusan yang lebih baik dalam ekosistem logistik dan rantai pasok.
-
----
-
-<p align="center">
-  Built with ⚡ PySpark · 🐘 PostgreSQL · 🌬️ Apache Airflow · 🔴 Redis · 🐳 Docker
-</p>
