@@ -1,0 +1,2 @@
+docker compose up -d
+docker compose exec airflow-worker python -c "import pyspark; print(pyspark.__version__)"

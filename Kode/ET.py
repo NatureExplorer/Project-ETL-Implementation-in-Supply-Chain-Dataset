@@ -9,7 +9,7 @@ sys.path.append('./Dataset/Ecommerce/train')
 
 def sesi():
     spark = SparkSession.builder \
-        .appName("ETL Ecommerce Order Dataset") \
+        .appName("ETL ESupply Chain") \
         .config("spark.driver.memory", "2g") \
         .config("spark.executor.memory", "2g")\
         .config("spark.sql.shuffle.partitions", "4")\
@@ -25,7 +25,7 @@ def transform_cust(spark, file_path):
 
         df_cust = df_cust.filter((F.col('customer_id').isNotNull()))
 
-        df_cust.to_Pandas().csv(load_path)
+        df_cust.write.csv(load_path)
 
     except Exception as e:
         logging.error(f"Error reading customer data: {e}")
@@ -47,7 +47,7 @@ def transform_oi(spark,file_path):
         df_oi = df_oi.filter((F.col('order_id').isNotNull()) & (F.col('product_id').isNotNull())
                              & (F.col('seller_id').isNotNull()))
 
-        df_oi.to_Pandas().csv(load_path)
+        df_oi.toPandas().csv(load_path)
 
     except Exception as e:
         logging.error(f"Error reading order item data: {e}")
@@ -70,7 +70,7 @@ def transform_order(spark,file_path):
             df_order.withColumn("order_estimated_delivery_date", F.to_timestamp("order_estimated_delivery_date", "yyyy-MM-dd"))
             )
 
-        df_order.to_Pandas().csv(load_path)
+        df_order.toPandas().csv(load_path)
 
     except Exception as e:
         logging.error(f"Error reading order data: {e}")
@@ -90,7 +90,7 @@ def transform_payments(spark,file_path):
             df_payments.withColumn("payment_installments", F.col("payment_installments").cast("integer"))
             )
 
-        df_payments.to_Pandas().csv(load_path)
+        df_payments.toPandas().csv(load_path)
 
     except Exception as e:
         logging.error(f"Error reading payment data: {e}")
@@ -112,7 +112,7 @@ def transform_product(spark,file_path):
         df_product = df_product.withColumn('volume product', df_product.product_length_cm * df_product.product_height_cm * df_product.product_width_cm)
         df_product = df_product.withColumn('volume product',F.col('volume product').cast('double'))
 
-        df_product.to_Pandas().csv(load_path)
+        df_product.toPandas().csv(load_path)
 
     except Exception as e:
         logging.error(f"Error reading product data: {e}")
@@ -126,16 +126,16 @@ def main():
     try:
             spark = sesi()
             file_path_cust = '/opt/airflow/train/df_Customers.csv'
-            file_path_oi = '/opt/airflow/train/df_OrderItems.csv'
-            file_path_order = '/opt/airflow/train/df_Orders.csv'
-            file_path_payments = '/opt/airflow/train/df_Payments.csv'
-            file_path_product = '/opt/airflow/train/df_Products.csv'
+            # file_path_oi = '/opt/airflow/train/df_OrderItems.csv'
+            # file_path_order = '/opt/airflow/train/df_Orders.csv'
+            # file_path_payments = '/opt/airflow/train/df_Payments.csv'
+            # file_path_product = '/opt/airflow/train/df_Products.csv'
         
             df_cust = transform_cust(spark, file_path_cust)
-            df_oi = transform_oi(spark, file_path_oi)
-            df_order = transform_order(spark, file_path_order)
-            df_payments = transform_payments(spark, file_path_payments)
-            df_product = transform_product(spark, file_path_product)
+            # df_oi = transform_oi(spark, file_path_oi)
+            # df_order = transform_order(spark, file_path_order)
+            # df_payments = transform_payments(spark, file_path_payments)
+            # df_product = transform_product(spark, file_path_product)
 
 
     except Exception as exp:

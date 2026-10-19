@@ -59,7 +59,7 @@ def create_table_from_spark_df(engine, df, table_name):
     ]
 
     create_query = sql.SQL(
-        "CREATE TABLE IF NOT EXISTS {} ({})"
+        "CREATE TABLE IF NOT EXISTS public.{} ({})"
     ).format(
         sql.Identifier(table_name),
         sql.SQL(", ").join(columns)
@@ -79,12 +79,12 @@ def create_table_from_spark_df(engine, df, table_name):
 
 
 def load_spark_df_to_postgres(engine, df, table_name):
-    """data DataFrame PySpark ke tabel PostgreSQL."""
+    """DataFrame PySpark ke tabel PostgreSQL."""
 
     column_names = df.columns
 
     copy_query = sql.SQL(
-        r"COPY {} ({}) FROM STDIN WITH "
+        r"COPY public.{} ({}) FROM STDIN WITH "
         r"(FORMAT CSV, DELIMITER E'\t', NULL '\N')"
     ).format(
         sql.Identifier(table_name),
