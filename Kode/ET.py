@@ -9,7 +9,7 @@ sys.path.append('./Dataset/Ecommerce/train')
 
 def sesi():
     spark = SparkSession.builder \
-        .appName("ETL ESupply Chain") \
+        .appName("ETL Supply Chain") \
         .config("spark.driver.memory", "2g") \
         .config("spark.executor.memory", "2g")\
         .config("spark.sql.shuffle.partitions", "4")\

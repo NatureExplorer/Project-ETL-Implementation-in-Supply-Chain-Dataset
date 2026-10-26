@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import sys
 
 sys.path.append('/opt/airflow/Kode')
-from load import main, data_quality_checks, cleaning_process
+from Kode.load import main, data_quality_checks, cleaning_process
 
 default_args = {
     'description':'DAG Supply Chain',
