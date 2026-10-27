@@ -6,59 +6,59 @@ from airflow.providers.standard.operators.empty import EmptyOperator
 from datetime import datetime, timedelta
 import sys
 
-sys.path.append('/opt/airflow/Kode')
+sys.path.insert(0, '/opt/airflow')
 from Kode.load import main, data_quality_checks, cleaning_process
 
 default_args = {
     'description':'DAG Supply Chain',
     'owner': 'alam',
-    'start_date': datetime.now(),
+    'start_date': datetime(2026,10,27),
     'retries': 1,
 }
 
 
 with DAG(
-    'Order_pipeline', 
+    'SupplyChain_Pipeline', 
     default_args=default_args, 
     schedule=timedelta(minutes=5)):
 
     tugas_et = BashOperator(
-        task_id = 'run extract and transform spark',
-        bash_command = 'python3.11 /opt/airflow/Kode/ET.py',
+        task_id = 'run-extract-and-transform-spark',
+        bash_command = 'python3.11 ./Kode/ET.py',
     )
 
     transform_customer = FileSensor(
-        task_id = 'Transform customer data',
+        task_id = 'Transform-customer-data',
         fs_conn_id= 'customer_default',
-        filepath = '/opt/airflow/staging/customers.csv',
+        filepath = './staging/customers.csv',
         poke_interval=10,
     )
 
     # transform_orderitems = FileSensor(
     #         task_id = 'Transform order items data',
     #         fs_conn_id= 'orderitems_default',
-    #         filepath = '/opt/airflow/staging/order_items.csv',
+    #         filepath = './staging/order_items.csv',
     #         poke_interval=10,
     #     )
 
     # transform_orders = FileSensor(
     #         task_id = 'Transform orders data',
     #         fs_conn_id= 'orders_default',
-    #         filepath = '/opt/airflow/staging/orders.csv',
+    #         filepath = './staging/orders.csv',
     #         poke_interval=10,
     #     )
 
     # transform_payments = FileSensor(
     #         task_id = 'Transform payments data',
     #         fs_conn_id= 'payments_default',
-    #         filepath = '/opt/airflow/staging/payments.csv',
+    #         filepath = './staging/payments.csv',
     #         poke_interval=10,
     #     )
 
     # transform_products = FileSensor(
     #         task_id = 'Transform products data',
     #         fs_conn_id= 'products_default',
-    #         filepath = '/opt/airflow/staging/products.csv',
+    #         filepath = './staging/products.csv',
     #         poke_interval=10,
     #     )
 
@@ -66,7 +66,7 @@ with DAG(
         task_id = 'loading_customers_report_to_postgres',
         python_callable=main,
         op_kwargs={
-            'data_path': '/opt/airflow/staging/customers.csv',
+            'data_path': './staging/customers.csv',
             'table_name':'customers',
             }, 
     )
@@ -75,7 +75,7 @@ with DAG(
     #     task_id = 'loading_OrderItems_report_to_postgres',
     #     python_callable=main,
     #     op_kwargs={
-    #         'data_path': '/opt/airflow/staging/order_items.csv',
+    #         'data_path': './staging/order_items.csv',
     #         'table_name':'orderitems',
     #         },  )
 
@@ -83,7 +83,7 @@ with DAG(
     #         task_id = 'loading_orders_report_to_postgres',
     #         python_callable=main,
     #         op_kwargs={
-    #             'data_path': '/opt/airflow/staging/orders.csv',
+    #             'data_path': './staging/orders.csv',
     #             'table_name':'orders',
     #             },  )
 
@@ -91,7 +91,7 @@ with DAG(
     #         task_id = 'loading_payments_report_to_postgres',
     #         python_callable=main,
     #         op_kwargs={
-    #             'data_path': '/opt/airflow/staging/payments.csv',
+    #             'data_path': './staging/payments.csv',
     #             'table_name':'payments',
     #             },  )
 
@@ -99,7 +99,7 @@ with DAG(
     #         task_id = 'loading_products_report_to_postgres',
     #         python_callable=main,
     #         op_kwargs={
-    #             'data_path': '/opt/airflow/staging/products.csv',
+    #             'data_path': './staging/products.csv',
     #             'table_name':'products',
     #             },  )
 

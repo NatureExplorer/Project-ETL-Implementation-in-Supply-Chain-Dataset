@@ -7,7 +7,10 @@ x-airflow-common:
     dockerfile: dockerfile
   env_file:
     - .env  
-  environment: &airflow-common-env
+  environment: &airflow-common-env  
+    AIRFLOW__CORE__EXECUTION_API_SERVER_URL: "http://airflow-webserver:8080/execution/"
+    AIRFLOW__CORE__PARALLELISM: "2"
+    AIRFLOW__CELERY__WORKER_CONCURRENCY: "1"
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
@@ -18,6 +21,8 @@ x-airflow-common:
     AIRFLOW__API__AUTH__BACKEND: 'airflow.api.auth.backend.basic_auth'
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     AIRFLOW_IMAGE_NAME: ${AIRFLOW_IMAGE_NAME:-apache/airflow:3.3.2-python3.11}
+    AIRFLOW__SCHEDULER__TASK_QUEUED_TIMEOUT: 100.0
+    
   volumes:
     - ./airflow/dags:/opt/airflow/dags
     - ./airflow/logs:/opt/airflow/logs

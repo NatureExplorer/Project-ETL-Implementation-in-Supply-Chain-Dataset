@@ -4,7 +4,7 @@ import logging
 import sys
     
 
-sys.path.append('./Dataset/Ecommerce/train')
+sys.path.insert(0, '/opt/airflow')
 
 
 def sesi():
@@ -125,6 +125,7 @@ def transform_product(spark,file_path):
 def main():
     try:
             spark = sesi()
+
             file_path_cust = '/opt/airflow/train/df_Customers.csv'
             # file_path_oi = '/opt/airflow/train/df_OrderItems.csv'
             # file_path_order = '/opt/airflow/train/df_Orders.csv'
