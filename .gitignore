@@ -1,5 +1,7 @@
 .vscode
 .env
 staging/
-postgres/
-train/
+Kode/Dataset/Ecommerce/test
+Kode/__pycache__
+airflow/logs/
+airflow/dags/__pycache__
