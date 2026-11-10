@@ -1,164 +1,49 @@
-from airflow.models import DAG
-from airflow.providers.standard.operators.python import PythonOperator
-from airflow.providers.standard.sensors.filesystem import FileSensor
-from airflow.providers.standard.operators.bash import BashOperator
-from airflow.providers.standard.operators.empty import EmptyOperator
-from datetime import datetime, timedelta
 import sys
+from pathlib import Path
+from datetime import datetime, timedelta
+from airflow.decorators import dag, task
 
-sys.path.insert(0, '/opt/airflow')
-from Kode.load import main, data_quality_checks, cleaning_process
+SCRIPTS_DIR = Path("/opt/airflow/scripts")
 
-default_args = {
-    'description':'DAG Supply Chain',
-    'owner': 'alam',
-    'start_date': datetime(2026,10,27),
-    'retries': 1,
-}
+if str(SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS_DIR))
+
+from Silver_layer import silver_transform_orders
+from Gold_layer import gold_layer_orders
+from load_db import gold_to_db
 
 
-with DAG(
-    'SupplyChain_Pipeline', 
-    default_args=default_args, 
-    schedule=timedelta(minutes=5)):
+@dag(
+    dag_id="orders_medallion_pipe",
+    start_date=datetime(2026, 11, 9),
+    schedule="*/30 * * * *",
+    catchup=False,
+    default_args={
+        "owner": "airflow",
+        "retries": 1,
+        "retry_delay": timedelta(minutes=1),
+    },
+    tags=["ETL", "Medallion Architecture"],
+)
+def orders_medallion_pipe():
 
-    tugas_et = BashOperator(
-        task_id = 'run-extract-and-transform-spark',
-        bash_command = 'python3.11 ./Kode/ET.py',
-    )
+    @task
+    def silver_transform_orders_task():
+        silver_transform_orders()
 
-    transform_customer = FileSensor(
-        task_id = 'Transform-customer-data',
-        fs_conn_id= 'customer_default',
-        filepath = './staging/customers.csv',
-        poke_interval=10,
-    )
+    @task
+    def gold_layer_orders_task():
+        gold_layer_orders()
 
-    # transform_orderitems = FileSensor(
-    #         task_id = 'Transform order items data',
-    #         fs_conn_id= 'orderitems_default',
-    #         filepath = './staging/order_items.csv',
-    #         poke_interval=10,
-    #     )
+    @task
+    def gold_to_db_task():
+        gold_to_db()
 
-    # transform_orders = FileSensor(
-    #         task_id = 'Transform orders data',
-    #         fs_conn_id= 'orders_default',
-    #         filepath = './staging/orders.csv',
-    #         poke_interval=10,
-    #     )
+    silver_task = silver_transform_orders_task()
+    gold_task = gold_layer_orders_task()
+    db_task = gold_to_db_task()
 
-    # transform_payments = FileSensor(
-    #         task_id = 'Transform payments data',
-    #         fs_conn_id= 'payments_default',
-    #         filepath = './staging/payments.csv',
-    #         poke_interval=10,
-    #     )
+    silver_task >> gold_task >> db_task
 
-    # transform_products = FileSensor(
-    #         task_id = 'Transform products data',
-    #         fs_conn_id= 'products_default',
-    #         filepath = './staging/products.csv',
-    #         poke_interval=10,
-    #     )
 
-    loading_customers_to_Postgres_task = PythonOperator(
-        task_id = 'loading_customers_report_to_postgres',
-        python_callable=main,
-        op_kwargs={
-            'data_path': './staging/customers.csv',
-            'table_name':'customers',
-            }, 
-    )
-
-    # loading_OrderItems_report_to_Postgres_task = PythonOperator(
-    #     task_id = 'loading_OrderItems_report_to_postgres',
-    #     python_callable=main,
-    #     op_kwargs={
-    #         'data_path': './staging/order_items.csv',
-    #         'table_name':'orderitems',
-    #         },  )
-
-    # loading_orders_report_to_Postgres_task = PythonOperator(
-    #         task_id = 'loading_orders_report_to_postgres',
-    #         python_callable=main,
-    #         op_kwargs={
-    #             'data_path': './staging/orders.csv',
-    #             'table_name':'orders',
-    #             },  )
-
-    # loading_payments_report_to_Postgres_task = PythonOperator(
-    #         task_id = 'loading_payments_report_to_postgres',
-    #         python_callable=main,
-    #         op_kwargs={
-    #             'data_path': './staging/payments.csv',
-    #             'table_name':'payments',
-    #             },  )
-
-    # loading_products_report_to_Postgres_task = PythonOperator(
-    #         task_id = 'loading_products_report_to_postgres',
-    #         python_callable=main,
-    #         op_kwargs={
-    #             'data_path': './staging/products.csv',
-    #             'table_name':'products',
-    #             },  )
-
-    data_quality_check_task = PythonOperator(
-        task_id = 'data_quality_checks',
-        python_callable=data_quality_checks,
-        op_kwargs={'tables': 'customers'
-        # ', orderitems ,orders, payments, products'
-                },
-        
-    )
-
-    start_execution_task = EmptyOperator(
-        task_id = 'start_execution',
-        
-    )
-
-    transformed_data_ready_task = EmptyOperator(
-        task_id = 'transformed_data_ready',
-        
-    )
-
-    loaded_data_ready_task = EmptyOperator(
-        task_id = 'loaded_data_ready',
-        
-    )
-
-    clean_up_task = PythonOperator(
-        task_id = 'clean_up_process',
-        python_callable=cleaning_process,
-    )
-
-    end_execution_task = EmptyOperator(
-        task_id = 'end_execution',
-        
-    )
-
-    start_execution_task >> tugas_et >> [transform_customer
-                                        #  , transform_orderitems, transform_orders, transform_payments, transform_products
-                                         ]
-
-    [transform_customer, 
-    # transform_orderitems, transform_orders, transform_payments, transform_products
-    ] >> transformed_data_ready_task
-    transformed_data_ready_task >> [loading_customers_to_Postgres_task,
-                                    # loading_OrderItems_report_to_Postgres_task,
-                                    # loading_orders_report_to_Postgres_task,
-                                    # loading_payments_report_to_Postgres_task,
-                                    # loading_products_report_to_Postgres_task,
-                                    ]
-    [loading_customers_to_Postgres_task
-    #  ,loading_OrderItems_report_to_Postgres_task,
-    #  loading_orders_report_to_Postgres_task,
-    #  loading_payments_report_to_Postgres_task,
-    #  loading_products_report_to_Postgres_task,
-     ] >> loaded_data_ready_task >> data_quality_check_task
-
-    data_quality_check_task >> clean_up_task >> end_execution_task
-    
-    
-
-    
+orders_medallion_pipe()

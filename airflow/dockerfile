@@ -1,8 +1,10 @@
 FROM apache/airflow:3.3.2-python3.11
 
-USER root
-# Optional but handy for compiling deps
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential && rm -rf /var/lib/apt/lists/*
-
 USER airflow
-RUN python -m pip install --no-cache-dir --progress-bar on pyspark==3.5.0
+
+RUN pip install --no-cache-dir \
+    pandas \
+    numpy \
+    sqlalchemy \
+    psycopg2-binary \
+    apache-airflow-providers-postgres

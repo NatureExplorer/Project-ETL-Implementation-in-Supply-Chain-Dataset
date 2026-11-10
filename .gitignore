@@ -1,6 +1,5 @@
 .vscode
 .env
-staging/
 Kode/Dataset/Ecommerce/test
 Kode/__pycache__
 airflow/logs/
