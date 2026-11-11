@@ -8,8 +8,8 @@ SCRIPTS_DIR = Path("/opt/airflow/scripts")
 if str(SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPTS_DIR))
 
-from Silver_layer import silver_transform_orders
-from Gold_layer import gold_layer_orders
+from Silver_layer import table_silver_transaction
+from Gold_layer import agregated_order_bytime, agregated_revenue_bycategory, agregated_city_byorder, ratio_shipandprice_bycity
 from load_db import gold_to_db
 
 
@@ -21,29 +21,28 @@ from load_db import gold_to_db
     default_args={
         "owner": "airflow",
         "retries": 1,
-        "retry_delay": timedelta(minutes=1),
+        "retry_delay": timedelta(minutes=5),
     },
     tags=["ETL", "Medallion Architecture"],
 )
 def orders_medallion_pipe():
 
-    @task
-    def silver_transform_orders_task():
-        silver_transform_orders()
+    @task()
+    def silver_layer():
+        table_silver_transaction()
 
-    @task
-    def gold_layer_orders_task():
-        gold_layer_orders()
+    @task()
+    def gold_layer():
+        agregated_order_bytime()
+        agregated_revenue_bycategory()
+        agregated_city_byorder()
+        ratio_shipandprice_bycity()
 
-    @task
-    def gold_to_db_task():
+    @task()
+    def load_to_db():
         gold_to_db()
 
-    silver_task = silver_transform_orders_task()
-    gold_task = gold_layer_orders_task()
-    db_task = gold_to_db_task()
 
-    silver_task >> gold_task >> db_task
-
+    silver_layer() >> gold_layer() >> load_to_db()
 
 orders_medallion_pipe()

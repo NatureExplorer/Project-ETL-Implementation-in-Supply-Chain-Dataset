@@ -26,7 +26,7 @@ x-airflow-common: &airflow-common
     - ./Kode:/opt/airflow/scripts
     - ./airflow/logs:/opt/airflow/logs
     - ./airflow/plugins:/opt/airflow/plugins
-    - ./Kode/Dataset/Ecommerce/train:/opt/airflow/data
+    - ./Kode/Dataset/Ecommerce/train:/opt/airflow/data/bronze
 
 services:
   postgres:

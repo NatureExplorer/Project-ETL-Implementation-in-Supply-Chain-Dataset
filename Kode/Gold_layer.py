@@ -11,15 +11,45 @@ gold_path = Path("/opt/airflow/data/gold")
 gold_path.mkdir(parents=True, exist_ok=True)
 
 
-def gold_layer_orders():
-    # Load the silver orders data
-    silver_orders = pd.read_csv("/opt/airflow/data/silver/orders.csv")
+data_transaction = pd.read_csv('/opt/airflow/data/silver/silver_transaction.csv')
+data_payments = pd.read_csv('/opt/airflow/data/silver/silver_payments.csv')
 
-    # Perform transformations to create the gold orders data
-    gold_orders = silver_orders.copy()
 
-    aggregated_orders = gold_orders.groupby('customer_id').agg(
-        total_orders=('order_id', 'count')
-    ).reset_index()
+def agregated_order_bytime():
 
-    aggregated_orders.to_csv('/opt/airflow/data/gold/aggregated_orders.csv', index=False)
+    agg = (data_transaction.groupby('order_purchase_timestamp').agg(
+        total_orders=('order_id', 'count'),
+        total_revenue =('price', 'sum')
+    ).reset_index())
+
+    agg.to_csv('/opt/airflow/data/gold/aggregated_orders.csv', index=False)
+
+
+def agregated_revenue_bycategory():
+    agg = (data_transaction.groupby('product_category_name').agg(
+        total_orders=('order_id', 'count'),
+        total_revenue =('price', 'sum')
+    ).reset_index())
+
+    agg.to_csv('/opt/airflow/data/gold/aggregated_revenue_bycategory.csv', index=False)
+
+
+def agregated_city_byorder():
+    agg = (data_transaction.groupby('customer_city').agg(
+        total_orders=('order_id', 'count'),
+        total_revenue =('price', 'sum')
+    ).reset_index())
+
+    agg.to_csv('/opt/airflow/data/gold/aggregated_city_byorder.csv', index=False)
+
+
+def ratio_shipandprice_bycity():
+    agg = (data_transaction.groupby('customer_city').agg(
+        total_orders=('order_id', 'count'),
+        total_revenue =('price', 'sum'),
+        total_shipping_charges=('shipping_charges', 'sum')
+    ).reset_index())
+
+    agg['ratio_shipping_price'] = agg['total_shipping_charges'] / agg['total_revenue']
+
+    agg.to_csv('/opt/airflow/data/gold/ratio_shipandprice_bycity.csv', index=False)
